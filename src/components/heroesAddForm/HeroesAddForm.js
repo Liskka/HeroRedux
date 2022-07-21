@@ -14,6 +14,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
 
 import { heroCreated } from '../heroesList/heroesSlice';
+import { getAllFilters } from '../heroesFilters/filterSlice';
+import { useCreateHeroMutation } from '../../api/apiSlice';
 
 const HeroesAddForm = () => {
     // Состояния для контроля формы
@@ -21,9 +23,13 @@ const HeroesAddForm = () => {
     const [heroDescr, setHeroDescr] = useState('');
     const [heroElement, setHeroElement] = useState('');
 
+    const [createHero, {isLoading}] = useCreateHeroMutation();
+
     const {filters, filtersLoadingStatus} = useSelector(state => state.filters);
     const dispatch = useDispatch();
     const {request} = useHttp();
+    
+    const allFilters = useSelector(getAllFilters);
 
     const onSubmitHandler = (e) => {
         e.preventDefault();
@@ -38,11 +44,7 @@ const HeroesAddForm = () => {
         }
 
         // Отправляем данные на сервер в формате JSON
-        // ТОЛЬКО если запрос успешен - отправляем персонажа в store
-        request("http://localhost:3001/heroes", "POST", JSON.stringify(newHero))
-            .then(res => console.log(res, 'Отправка успешна'))
-            .then(dispatch(heroCreated(newHero)))
-            .catch(err => console.log(err));
+        createHero(newHero).unwrap();
 
         // Очищаем форму после отправки
         setHeroName('');
@@ -51,7 +53,7 @@ const HeroesAddForm = () => {
     }
 
     const renderFilters = (filters, status) => {
-        if (status === "loading") {
+        if (isLoading) {
             return <option>Загрузка элементов</option>
         } else if (status === "error") {
             return <option>Ошибка загрузки</option>
@@ -107,7 +109,7 @@ const HeroesAddForm = () => {
                     value={heroElement}
                     onChange={(e) => setHeroElement(e.target.value)}>
                     <option value="">Я владею элементом...</option>
-                    {renderFilters(filters, filtersLoadingStatus)}
+                    {renderFilters(allFilters, filtersLoadingStatus)}
                 </select>
             </div>
 
