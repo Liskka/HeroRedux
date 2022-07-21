@@ -5,7 +5,6 @@ import {getActiveFilter} from '../heroesFilters/filterSlice';
 const heroesAdapter = createEntityAdapter();
 
 
-
 const initialState = heroesAdapter.getInitialState({
   heroesLoadingStatus: 'idle'
 });
@@ -34,7 +33,7 @@ const heroesSlice = createSlice({
       .addCase(fetchHeroes.pending, state => {state.heroesLoadingStatus = 'loading'})
       .addCase(fetchHeroes.fulfilled, (state, action) => {
         state.heroesLoadingStatus = 'idle';
-        console.log('HEROES action.payload = ', action.payload);
+        // console.log('HEROES action.payload = ', action.payload);
         // state.heroes = action.payload;
         heroesAdapter.setAll(state, action.payload);
       })
